@@ -39,14 +39,8 @@ resource "aws_s3_bucket_public_access_block" "bucket_access_block" {
 }
 
 resource "aws_s3_bucket_policy" "bucket_policy" {
-  depends_on = [aws_s3_bucket_public_access_block.bucket_access_block]
-  bucket     = aws_s3_bucket.buckt.id
-  policy = jsondecode(
-    {
-      version : "2024-"
-    }
-  )
-
+  bucket = data.aws_s3_bucket.bucket-data.id
+  policy = data.aws_iam_policy_document.policy_document.json
 }
 
 data "aws_iam_policy_document" "policy_document" {
@@ -64,4 +58,22 @@ data "aws_iam_policy_document" "policy_document" {
     }
   }
   depends_on = [aws_s3_bucket_policy.bucket_policy]
+}
+
+resource "aws_s3_bucket_website_configuration" "website_config" {
+  bucket = data.aws_s3_bucket.bucket-data.bucket
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_object" "object_upload" {
+  for_each     = fileset("src/", "*.*")
+  bucket       = data.aws_s3_bucket.bucket-data.bucket
+  key          = each.value
+  source       = "src/${each.value}"
+  content_type = "text/html"
+  etag         = filemd5("src/${each.value}")
+  acl          = "public-read"
+
 }
