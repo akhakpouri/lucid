@@ -1,9 +1,9 @@
-resource "aws_s3_bucket" "buckt" {
+resource "aws_s3_bucket" "lucid_bucket" {
   bucket = var.bucket_name
 }
 
 data "aws_s3_bucket" "bucket-data" {
-  bucket = aws_s3_bucket.buckt.bucket
+  bucket = aws_s3_bucket.lucid_bucket.bucket
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
@@ -30,7 +30,7 @@ resource "aws_s3_bucket_ownership_controls" "bucket_ownership" {
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_access_block" {
-  bucket = aws_s3_bucket.buckt.id
+  bucket = data.aws_s3_bucket.bucket-data.id
 
   block_public_acls       = false
   block_public_policy     = false
@@ -57,7 +57,7 @@ data "aws_iam_policy_document" "policy_document" {
       identifiers = ["*"]
     }
   }
-  depends_on = [aws_s3_bucket_policy.bucket_policy]
+  depends_on = [aws_s3_bucket_public_access_block.bucket_access_block]
 }
 
 resource "aws_s3_bucket_website_configuration" "website_config" {
