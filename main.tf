@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "bucket" {
-  bucket = "lucid-app-bucket"
+  bucket = "khakpouri.me"
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_access_block" {
@@ -18,7 +18,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
       "Version" : "2012-10-17",
       "Statement" : [
         {
-          "Sid" : "PublicReadGetObject",
+          "Sid" : "AllowPublicRead",
           "Effect" : "Allow",
           "Principal" : "*",
           "Action" : "s3:GetObject",
@@ -72,8 +72,8 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"
-      locations        = []
+      restriction_type = "whitelist"
+      locations        = ["US", "CA", "GB", "DE"]
     }
   }
 
